@@ -3,6 +3,11 @@
 import face_recognition
 import cv2
 import numpy as np
+import os
+
+print(face_recognition.__version__)
+print(cv2.__version__)
+print(np.__version__)
 
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
@@ -30,12 +35,21 @@ biden_face_encoding = face_recognition.face_encodings(biden_image)[0]
 m_image = face_recognition.load_image_file("myoung_hak.jpg")
 m_face_encoding = face_recognition.face_encodings(m_image)[0]
 
+m1_image = face_recognition.load_image_file("Jae_Hyun.jpg")
+m1_face_encoding = face_recognition.face_encodings(m1_image)[0]
+
+m2_image = face_recognition.load_image_file("Jin_Young.jpg")
+m2_face_encoding = face_recognition.face_encodings(m2_image)[0]
+
 
 # Create arrays of known face encodings and their names
 known_face_encodings = [
+
     obama_face_encoding,
     biden_face_encoding,
-    m_face_encoding
+    m_face_encoding,
+    m1_face_encoding,
+    m2_face_encoding
 ]
 
 
@@ -43,7 +57,10 @@ known_face_names = [
 
     "woosung",
     "yewong",
-    "Myung Hak"
+    "Myung Hak",
+    "Jae Hyun",
+    "Jin Young"
+
 ]
 
 # Initialize some variables
@@ -63,7 +80,9 @@ while True:
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
-        rgb_small_frame = small_frame[:, :, ::-1]
+        # rgb_small_frame = small_frame[:, :, ::-1]를 실행하면, 에러가 나는 경우가 있다. 아래 stackoverflow에 그 해결 방법이 있다.
+        # rgb_small_frame = small_frame[:, :, ::-1] # https://stackoverflow.com/questions/75926662/face-recognition-problem-with-face-encodings-function
+        rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)  # 해결 방법
 
         # Find all the faces and face encodings in the current frame of video
         face_locations = face_recognition.face_locations(rgb_small_frame)
@@ -83,10 +102,11 @@ while True:
 
             # Or instead, use the known face with the smallest distance to the new face
             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+            print(face_distances)
 
             best_match_index = np.argmin(face_distances) # return the [index] of minimum distance
 
-            if face_distances[best_match_index] <= 0.3:
+            if face_distances[best_match_index] <= 0.5:
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
 
@@ -120,3 +140,5 @@ while True:
 # Release handle to the webcam
 video_capture.release()
 cv2.destroyAllWindows()
+#input("Press Enter to exit")
+os.system("pause")
