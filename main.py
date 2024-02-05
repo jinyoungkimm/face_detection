@@ -20,21 +20,30 @@ video_capture = cv2.VideoCapture(0)
 obama_image = face_recognition.load_image_file("woosung.jpg")
 obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
 
+
 # Load a second sample picture and learn how to recognize it.
 biden_image = face_recognition.load_image_file("yewon.jpg")
 biden_face_encoding = face_recognition.face_encodings(biden_image)[0]
 
+
+# Load a second sample picture and learn how to recognize it.
+m_image = face_recognition.load_image_file("myoung_hak.jpg")
+m_face_encoding = face_recognition.face_encodings(m_image)[0]
+
+
 # Create arrays of known face encodings and their names
 known_face_encodings = [
     obama_face_encoding,
-    biden_face_encoding
+    biden_face_encoding,
+    m_face_encoding
 ]
 
 
 known_face_names = [
 
     "woosung",
-    "yewong"
+    "yewong",
+    "Myung Hak"
 ]
 
 # Initialize some variables
@@ -44,6 +53,7 @@ face_names = []
 process_this_frame = True
 
 while True:
+
     # Grab a single frame of video
     ret, frame = video_capture.read()
 
@@ -61,20 +71,24 @@ while True:
 
         face_names = []
         for face_encoding in face_encodings:
+
             # See if the face is a match for the known face(s)
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+            matches = face_recognition.compare_faces(known_face_encodings, face_encoding) # match -> True or False
             name = "Unknown"
 
             # # If a match was found in known_face_encodings, just use the first one.
-            # if True in matches:
+            #if True in matches:
             #     first_match_index = matches.index(True)
             #     name = known_face_names[first_match_index]
 
             # Or instead, use the known face with the smallest distance to the new face
             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-            best_match_index = np.argmin(face_distances)
-            if matches[best_match_index]:
-                name = known_face_names[best_match_index]
+
+            best_match_index = np.argmin(face_distances) # return the [index] of minimum distance
+
+            if face_distances[best_match_index] <= 0.3:
+                if matches[best_match_index]:
+                    name = known_face_names[best_match_index]
 
             face_names.append(name)
 
